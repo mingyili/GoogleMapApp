@@ -1,0 +1,14 @@
+{
+  "name": "google-map-page-app",
+  "description": "google-map-page-app",
+  "author": {
+    "name": "mingyili",
+    "email": "mingyili@gmail.com",
+    "url": "https://mingyili.github.io/"
+  },
+  "version": "0.0.1",
+  "devDependencies": {
+    "zepto": "^1.2.0",
+    "knockout": "^3.4.2"
+  }
+}
