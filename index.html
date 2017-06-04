@@ -11,23 +11,50 @@
     <title>GoogleMappApp</title>
     <style type="text/css">
         html,
-        body {
-        font-family: Arial, sans-serif;
-        height: 100%;
-        margin: 0;
-        padding: 0;
+        body { 
+            font-family: Arial, sans-serif; height: 100%; margin: 0; padding: 0; 
+            font-size: 14px; line-height: 1.6; color: #333;
         }
+        p {margin: 0; min-height: 1em;}
+        .search-cont { position: absolute; width: 100%; max-width: 480px; top: 20px; right: 0; z-index: 10; }
+        .search-div { margin: 0 15px; }
+        .search-bar,
+        .result-list { background-color: #fff; border-radius: 3px; box-shadow: 0 0 5px 2px rgba(0, 0, 0, .2); }
+        .search-bar { padding: 2px 15px; }
+        .sidebar-input {
+            width: 100%; height: 38px; line-height: 38px;
+            font-size: 16px; appearance: none; border: 0; outline: 0;
+        }
+        .result-list { list-style: none; padding: 0; margin-top: 12px; }
+        .list-item { padding: 8px 15px; }
+        .list-item + .list-item { border-top: 1px solid #eee; }
 
         #map {
-        height: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
+    <div class="search-cont">
+        <div class="search-div">
+            <div class="search-bar">
+                <input type="text" class="sidebar-input" data-bind="value: input, event: {input: onSearch}" placeholder="快捷检索" />
+            </div>
+            <ul class="result-list" data-bind="foreach: locations">
+                <li class="list-item" data-bind="click: onClick">
+                    <p data-bind="text: cname"></p>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
     <div id="map" class="map-cont"></div>
 
     <script src="lib/zepto.min.js"></script>
     <script src="lib/knockout-3.4.2.js"></script>
+    <script src="src/js/data.js"></script>
+    <script src="src/js/app.js"></script>
     <script src="src/js/map.js"></script>
 </body>
 </html>
