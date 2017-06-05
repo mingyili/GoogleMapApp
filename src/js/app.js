@@ -1,4 +1,4 @@
-(function($, w) {
+(function($, W) {
     'use strict';
 
     // 地址卡片
@@ -12,64 +12,44 @@
 
         // 卡片点击事件
         this.onClick = function () {
-            console.log('card click', this.active());
             this.active( !this.active() );
-            this.active() ? google.maps.event.trigger(this.marker, 'click') :
+            this.active() ? W.googleMap.closeAllInfoWindow(), google.maps.event.trigger(this.marker, 'click') :
                 google.maps.event.trigger(this.infowindow, 'closeclick');
         };
     };
 
 
     // 搜索的ViewModel
-    var serachViewModel = function(defData) {        
-        // 绑定
+    var serachViewModel = function() {        
+        // 检索词 去抖 300ms
+        this.keyword = ko.observable('').extend({ rateLimit: 300 });
+
+        // 用于绑定地址信息
         this.locations = ko.observableArray();
         
-        // 添加地址卡片
+        // 动态添加地址卡片，堆栈式填入
         this.addCard = function(data) {
             this.locations.unshift(new locCard(data));
             return this.locations()[0];
         };
 
-        /*if (defData) {
-            defData.map(this.addCard.bind(this));
-        }*/
-        
-        // 检索词
-        this.input = ko.observable('');
-        
-        // 输入即搜索，做去抖处理，停止输入300ms后才触发搜索
-        this.searchTimer = null;
-        this.onSearch = function() {
-            if (this.searchTimer) {
-                clearTimeout(this.searchTimer);
-                this.searchTimer = null;
-            }
-            this.searchTimer = setTimeout(this.search.bind(this), 300);
-        };
-
-        // 设置地址卡片和地图标记是否展示
-        var toggleLocCard = function(loc, isMatch) {
-            loc.visible(isMatch);
-            loc.marker.setVisible(isMatch);
-            return loc;
-        };
-        
-        // 筛选出匹配的结果
-        this.search = function() {
-            var input = $.trim( this.input() ),
+        // 筛选出匹配的结果 pureComputed 避免多次运算
+        this.getMatchLoc = ko.pureComputed(function() {
+            var keyword = $.trim(this.keyword()),
                 locCards = this.locations();
 
-            if (!locCards.length) return;
-
             this.locations( locCards.map(function(loc) {
-                return toggleLocCard(loc, input === '' ? true : loc.name.indexOf(input) > -1);
+                // 是否匹配关键词 关键词为空，默认都匹配
+                var isMatch = keyword === '' ? true : loc.cname.indexOf(keyword) > -1;
+                loc.visible(isMatch);
+                loc.marker.setVisible(isMatch);
+                return loc;
             }) );
-        }; 
-
-        // this.search.extend({ rateLimit: 300 });
+            
+            return this.locations();
+        }, this);
     }
 
-    w.searchVM = new serachViewModel(locationDatas);
-    ko.applyBindings(w.searchVM);
+    W.searchVM = new serachViewModel();
+    ko.applyBindings(W.searchVM);
 })($, window);

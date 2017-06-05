@@ -51,6 +51,7 @@
             // 标签数据和地址卡片双向绑定，
             var locCard = W.searchVM.addCard(data),
                 mapSelf = this;
+            
             // 点击 marker 时候展示响应信息
             locCard.marker.addListener('click', function() {
                 mapSelf.showInfoWinodw(locCard);
@@ -66,14 +67,16 @@
                 this.setIcon(defIcon);
             });
         },
+        closeAllInfoWindow: function() {
 
+        },
         // 展示从维基获取的地址介绍信息
         showInfoWinodw: function(card) {
-            if (card.wiki) {
+            if (card.wiki)
                 return card.infowindow.open(map, card.marker);
-            }
+
             // 初始化信息框，用于marker点击时显示
-            this.wikiQuery(card.name, function(data) {
+            this.wikiSearch(card.name, function(data) {
                 var _data = {};
                 var _res = [];
                 for (var e in data.query.pages) {
@@ -104,7 +107,7 @@
                 // flag: wiki 是否已加载过
                 card.wiki = _data;
                 card.infowindow.open(map, card.marker);
-                card.infowindow.addListener('closeclick',function(){
+                card.infowindow.addListener('closeclick', function(){
                     card.infowindow.close();
                     card.active(false);
                     card.marker.setAnimation(null);
@@ -118,7 +121,7 @@
                 card.infowindow.open(map, card.marker);
             });
         },
-        wikiQuery: function(name, onSuccess, onError) {
+        wikiSearch: function(name, onSuccess, onError) {
             // wiki api
             var wikiApi = 'https://en.wikipedia.org/w/api.php?format=json&action=query&generator=search&gsrnamespace=0&gsrlimit=10&prop=pageimages|extracts&pilimit=max&exintro&explaintext&exsentences=1&exlimit=max&origin=*&gsrsearch=';
             // 添加成功和失败状态下的回调处理
