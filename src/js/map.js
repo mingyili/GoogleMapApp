@@ -1,152 +1,165 @@
-(function($, W) {
+;(function($, W) {
     'use strict';
 
-    // 默认地图中心定位为北京
+    // 默认配置信息，地图中心为北京
     var def = {
             dom: document.getElementById('map'),
+            local: 'beijing',
             center: {
                 lat: 39.9087191,
                 lng: 116.3952003
-            }
-        },
-        iconBase = 'https://mingyili.github.io/assets/img/map/';
+            },
+            iconBase : 'https://mingyili.github.io/assets/img/map/',
+            wikiApiUrl : 'https://en.wikipedia.org/w/api.php?format=json&action=query&generator=search&gsrnamespace=0&gsrlimit=10&prop=pageimages|extracts&pilimit=max&exintro&explaintext&exsentences=1&exlimit=max&origin=*&gsrsearch='
+        };
 
+    /**
+     * Map 统一管理地图操作方法
+     * @param {JSON} opt 自定义相关配置
+     */
     var Map = function (opt) {
         this.opt = $.extend({}, def, opt);
         this.init();
     };
-
     Map.prototype = {
         init: function() {
             var opt = this.opt;
             this.map = new google.maps.Map(opt.dom, {
-              center: opt.center,
-              zoom: 13
+                center: opt.center,
+                zoom: 13
             });
-            // 初始化默认的地址
-            if (opt.locations) {
-                opt.locations.map(this.addMarker.bind(this));
-            }
+            if (opt.locations) this.addMarkers(opt.locations);
         },
-        // 获取标记图标
+        /**
+         * getMarkerIcon 获取不同类型的标记图标，获取过的会缓存
+         * @param  {String} type 地图标记类型
+         * @return {Obj} 返回 实例化过的 MarkerImage 对象
+         */
         getMarkerIcon: function(type) {
             this.markerIcons = this.markerIcons || {};
-            this.markerIcons[type] = this.markerIcons[type] || new google.maps.MarkerImage(iconBase + type + '.png');
+            this.markerIcons[type] = this.markerIcons[type] || new google.maps.MarkerImage(this.opt.iconBase + type + '.png');
             return this.markerIcons[type];
         },
-        // 添加一个标记
-        addMarker: function(data) {
-            
-            var defIcon = this.getMarkerIcon(data.type),
-                hoverIcon = this.getMarkerIcon(data.type + '_hover');
-
-            data.marker = new google.maps.Marker({
-                position: data.location,
-                title: data.cname,
-                icon: defIcon,
-                map: this.map,
-                animation: google.maps.Animation.DROP
-            });
-            
-            // 标签数据和地址卡片双向绑定，
-            var locCard = W.searchVM.addCard(data),
-                mapSelf = this;
-            
-            // 点击 marker 时候展示响应信息
-            locCard.marker.addListener('click', function() {
-                mapSelf.showInfoWinodw(locCard);
-                this.setAnimation(google.maps.Animation.BOUNCE);
-                locCard.active(true);
-            });
-            // 鼠标 hover 时改变图标颜色
-            locCard.marker.addListener('mouseover', function() {
-                this.setIcon(hoverIcon);
-            });
-            // 鼠标移出时复原
-            locCard.marker.addListener('mouseout', function() {
-                this.setIcon(defIcon);
+        /**
+         * addMarkers 批量实例化一组地图标记；
+         * 利用地图标记数据批量生成地址卡片数据，
+         * 回调绑定点击事件能在点击标记时响应 locCard 模型定义的 onActive 方法，这样就可以统一处理地址的 active 事件
+         * @param {Array} locs 地址数据
+         */
+        addMarkers: function(locs) {
+            if (!locs || !locs.length) return this;
+            var markers = locs.map(this.newMarker.bind(this));
+            W.searchVM.addCards(markers, function(e) {
+                e.marker.addListener('click', e.onActive.bind(e));
             });
         },
-        closeAllInfoWindow: function() {
+        /**
+         * newMarker 实例化一个地图标记
+         * @param  {JSON} loc 地址卡片信息
+         * @return {JSON} loc 含有实例化过的 marker 信息的 loc
+         */
+        newMarker: function(loc) {
+            var defIcon = this.getMarkerIcon(loc.type),
+                hoverIcon = this.getMarkerIcon(loc.type + '_hover'),
+                mapSelf = this,
+                marker = new google.maps.Marker({
+                    position: loc.location,
+                    title: loc.cname,
+                    icon: defIcon,
+                    map: this.map,
+                    animation: google.maps.Animation.DROP
+                });
+            // 鼠标 hover 时改变图标
+            marker.addListener('mouseover', marker.setIcon.bind(marker, hoverIcon));
+            marker.addListener('mouseout', marker.setIcon.bind(marker, defIcon));
 
+            // 标记为 active 时添加标记动画并展示信息窗口
+            marker.onActive = function() {
+                // 这里执行的 this 变成了卡片
+                this.marker.setAnimation(google.maps.Animation.BOUNCE);
+                mapSelf.showInfoWinodw(this);
+            };
+            marker.offActive = function() {
+                this.marker.setAnimation(null);
+                this.infowindow && this.infowindow.close();
+            };
+            loc.marker = marker
+            return loc;
         },
-        // 展示从维基获取的地址介绍信息
-        showInfoWinodw: function(card) {
-            if (card.wiki)
-                return card.infowindow.open(map, card.marker);
+        /**
+         * initInfowindow 初始化信息框
+         * @param {JSON} loc  地址模型对象
+         * @param {JSON} info 信息框数据，没有，默认卡条数据做内容
+         */
+        initInfowindow: function(loc, info) {
+            info = info || {
+                isDef: true,
+                text: loc.cname
+            };
+            loc.infowindow = new google.maps.InfoWindow({
+                content: ['<div class="info-cont">',
+                    (info.img ? '<img src="' + info.img + '" class="info-img"/>' : ''),
+                    '<div class="info-text">',
+                        (info.isDef ? '<p>维基介绍：</p>' : ''),
+                        info.text + '<a target="_blank" href="https://en.wikipedia.org/wiki/' + loc.name + '">--More</a>',
 
-            // 初始化信息框，用于marker点击时显示
-            this.wikiSearch(card.name, function(data) {
-                var _data = {};
-                var _res = [];
-                for (var e in data.query.pages) {
-                    var _page = data.query.pages[e];
-                    // 筛选出有效且的地址信息
-                    if (!/refer to:$/.test(_page.extract) && /shanghai/i.test(_page.extract)) {
-                        _res.push(_page);
-                    }
-                };
-
-                if(!_res.length){
-                    alert('未查到相关地址信息！')
-                }else{
-                    // 按相关性做排序
-                    _res.sort(function(a,b){
-                        return a.index > b.index;
-                    });
-                    // 取条一条数据做展示 
-                    _data.text = _res[0].extract;
-                    _data.img = _res[0].thumbnail? '<img src="'+ _res[0].thumbnail.source.replace(/33px|50px/,'100px') +'" class="thumbnail" />':'';
-                };
-
-                // 创建 infowindow 实例 初始化，并创建关闭事件监听 
-                card.infowindow = new google.maps.InfoWindow({
-                    content: _data.img +
-                    '<div class="infotext">'+_data.text +'--from[<a href="https://en.wikipedia.org/wiki/'+ card.name +'">wikipedia</a>]</div>'
-                });
-                // flag: wiki 是否已加载过
-                card.wiki = _data;
-                card.infowindow.open(map, card.marker);
-                card.infowindow.addListener('closeclick', function(){
-                    card.infowindow.close();
-                    card.active(false);
-                    card.marker.setAnimation(null);
-                });
-            }, function(error) {
-                console.log('获取wiki词条失败');
-                // 获取wiki失败，则默认使用 中文名字做 infowindow的内容展示
-                card.infowindow = new google.maps.InfoWindow({
-                    content: card.cname
-                });
-                card.infowindow.open(map, card.marker);
+                    '</div>',
+                '</div>'].join('')
             });
+            // 绑定窗口关闭事件
+            loc.infowindow.addListener('closeclick', loc.offActive.bind(loc));
+            loc.infowindow.open(this.map, loc.marker);
         },
-        wikiSearch: function(name, onSuccess, onError) {
-            // wiki api
-            var wikiApi = 'https://en.wikipedia.org/w/api.php?format=json&action=query&generator=search&gsrnamespace=0&gsrlimit=10&prop=pageimages|extracts&pilimit=max&exintro&explaintext&exsentences=1&exlimit=max&origin=*&gsrsearch=';
-            // 添加成功和失败状态下的回调处理
+        /**
+         * showInfoWinodw 展示介绍信息
+         * 调用 wiki api 获取当前地址的介绍信息；
+         * 获取失败的时候默认使用卡片数据填充，获取成功后会缓存，第二次调用不再请求；
+         * @param {JSON} loc 地址模型数据
+         */
+        showInfoWinodw: function(loc) {
+            if (loc.infowindow) return loc.infowindow.open(this.map, loc.marker);
+            var mapSelf = this,
+                isLocal = new RegExp(this.opt.local, "i");
+
             $.ajax({
-                url: wikiApi + name,
+                url: this.opt.wikiApiUrl + loc.name,
                 dataType: 'json',
                 success: function(data) {
-                    typeof onSuccess === 'function' && onSuccess(data);
+                    if (!data) return mapSelf.initInfowindow(loc);
+                    var infos = [];
+                    $.each(data.query.pages, function(key, val) {
+                        // 筛选有效的信息
+                        if (!/refer to:$/.test(val.extract) && isLocal.test(val.extract)) infos.push(val);
+                    });
+                    if (!infos.length) return mapSelf.initInfowindow(loc);
+
+                    // 排序 找相关度最大(index 最小)的信息
+                    infos.sort(function(a, b) {
+                        return a.index - b.index;
+                    });
+                    mapSelf.initInfowindow(loc, {
+                        text: infos[0].extract,
+                        img: infos[0].thumbnail ? infos[0].thumbnail.source.replace(/33px|50px/,'100px') : ''
+                    });
                 },
                 error: function(error) {
-                    typeof onError === 'function' && onError(error);
+                    console.log('wiki 数据加载失败');
+                    mapSelf.initInfowindow(loc);
                 }
             });
-        },
+        }
     };
-    
-    // 加载js
+
+    // 翻墙老连不上所以加了 script 加载 js，检测加载失败
     var script = document.createElement('script');
     script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCzaIkBQ6lg2lNcpzXCe554Eusmdq9ujEE";
     script.onload = function() {
         W.googleMap = new Map({
+            local: 'shanghai',
             center: {
                 lat: 31.23071096,
                 lng: 121.46484375
-            }, 
+            },
             locations: locationDatas
         });
     };
