@@ -42,20 +42,20 @@
         },
         /**
          * addMarkers 批量实例化一组地图标记；
-         * 利用地图标记数据批量生成地址卡片数据，
-         * 回调绑定点击事件能在点击标记时响应 locCard 模型定义的 onActive 方法，这样就可以统一处理地址的 active 事件
+         * 利用地图标记数据批量生成地址模型数据，
+         * 回调绑定点击事件能在点击标记时响应 locMode 定义的 onActive 方法，这样就可以统一处理地址的 active 事件
          * @param {Array} locs 地址数据
          */
         addMarkers: function(locs) {
             if (!locs || !locs.length) return this;
             var markers = locs.map(this.newMarker.bind(this));
-            W.searchVM.addCards(markers, function(e) {
+            W.searchVM.addLocModes(markers, function(e) {
                 e.marker.addListener('click', e.onActive.bind(e));
             });
         },
         /**
          * newMarker 实例化一个地图标记
-         * @param  {JSON} loc 地址卡片信息
+         * @param  {JSON} loc 地址模型信息
          * @return {JSON} loc 含有实例化过的 marker 信息的 loc
          */
         newMarker: function(loc) {
@@ -73,9 +73,9 @@
             marker.addListener('mouseover', marker.setIcon.bind(marker, hoverIcon));
             marker.addListener('mouseout', marker.setIcon.bind(marker, defIcon));
 
-            // 标记为 active 时添加标记动画并展示信息窗口
+            // 地址标记 active 时添加动画并展示信息窗口
             marker.onActive = function() {
-                // 这里执行的 this 变成了卡片
+                // 这的 this 指向 loc，避免事件调用时获取不到正确的 locMode
                 this.marker.setAnimation(google.maps.Animation.BOUNCE);
                 mapSelf.showInfoWinodw(this);
             };
@@ -102,18 +102,17 @@
                     '<div class="info-text">',
                         (info.isDef ? '<p>维基介绍：</p>' : ''),
                         info.text + '<a target="_blank" href="https://en.wikipedia.org/wiki/' + loc.name + '">--More</a>',
-
                     '</div>',
                 '</div>'].join('')
             });
             // 绑定窗口关闭事件
             loc.infowindow.addListener('closeclick', loc.offActive.bind(loc));
-            loc.infowindow.open(this.map, loc.marker);
+            loc.active() && loc.infowindow.open(this.map, loc.marker);
         },
         /**
          * showInfoWinodw 展示介绍信息
          * 调用 wiki api 获取当前地址的介绍信息；
-         * 获取失败的时候默认使用卡片数据填充，获取成功后会缓存，第二次调用不再请求；
+         * 获取失败的时候默认使用模型数据填充，获取成功后会缓存，第二次调用不再请求；
          * @param {JSON} loc 地址模型数据
          */
         showInfoWinodw: function(loc) {
