@@ -1,89 +1,72 @@
-var locationDatas = [{
-        name: 'Zhongshan Park',
-        capital:'zsp',
+var locationDatas = [
+    {
+        name:'天安门',
         type: 'location',
-        cname:'中山公园',
-        location:{lat: 31.2218379, lng: 121.4191892},
-        address: '780 Changning Rd, ZhongShan GongYuan, Changning Qu, Shanghai Shi, China'
+        location: {lat: 39.909191, lng: 116.3969811},
+    },  
+    {
+        name:'故宫博物院',
+        type: 'location',
+        location: {lat: 39.9165884, lng: 116.3972386},
     },
     {
-        name: 'Jade Buddha Temple',
-        capital:'jbt',
+        name:'中国国家图书馆',
         type: 'location',
-        cname:'玉佛禅寺',
-        location:{lat: 31.2411435, lng: 121.44542980000006},
-        address: '170 Anyuan Rd, Jing\'an, China'
+        location: {lat: 39.945871, lng: 116.322362},
     },
     {
-        name: 'Waibaidu Bridge',
-        capital:'wbdb',
+        name:'中国国家体育场',
         type: 'location',
-        cname:'外白渡桥',
-        location:{lat: 31.23292219999999, lng: 121.49112420000006},
-        address: 'Waitan Tunnel, WaiTan, Huangpu Qu, Shanghai Shi, China'
+        location: {lat: 39.9929472, lng: 116.3943225},
     },
     {
-        name: 'The Bund',
-        capital:'tb',
+        name:'798艺术区',
         type: 'location',
-        cname:'外滩',
-        location:{lat: 31.2379329, lng: 121.49017500000002},
-        address: 'Zhongshan East 1st Rd, WaiTan, Huangpu Qu, Shanghai Shi, China'
+        location: {lat: 39.9829545, lng: 116.4929476},
     },
     {
-        name: 'Nanjing Road',
-        capital:'njr',
+        name:'簋街',
         type: 'location',
-        cname:'南京路步行街',
-        location:{lat: 31.23472099999999, lng: 121.47489799999994},
-        address: 'Nanjing Rd Pedestrian St, NanJing Lu, Huangpu Qu, Shanghai Shi, China'
+        location: {lat: 39.9410605, lng: 116.4246827},
     },
     {
-        name: 'People\'s Park',
-        capital:'pp',
+        name:'南锣鼓巷',
         type: 'location',
-        cname:'人民公园',
-        location:{lat: 31.2319933, lng: 121.47311160000004},
-        address: '231 Nanjing W Rd, RenMin GuangChang, Huangpu Qu, Shanghai Shi, China'
+        location: {lat: 39.9370864, lng: 116.4029372},
     },
     {
-        name: 'Shanghai Museum',
-        capital:'sm',
+        name:'三里屯',
         type: 'location',
-        cname:'上海博物馆',
-        location:{lat: 31.2283566, lng: 121.4720446},
-        address: '201 Renmin Ave, RenMin GuangChang, Huangpu Qu, China'
+        location: {lat: 39.9324732, lng: 116.4545548},
     },
     {
-        name: 'Yu Garden',
-        capital:'yg',
+        name:'世贸天阶',
         type: 'location',
-        cname:'豫园',
-        location:{lat: 31.226131, lng: 121.49089700000002},
-        address: '218 Anren St, Huangpu Qu, Shanghai Shi, China'
+        location: {lat: 39.9167636, lng: 116.4515275},
     },
     {
-        name: 'Shanghai Old Street',
-        capital:'sos',
+        name:'西单',
         type: 'location',
-        cname:'上海老街',
-        location:{lat: 31.226362, lng: 121.49667640000007},
-        address: 'Baodai Long, Huangpu Qu, Shanghai Shi, China'
+        location: {lat: 39.9095643, lng: 116.3739301},
     },
     {
-        name: 'Oriental Pearl TV Tower',
-        capital:'optt',
+        name:'北京欢乐谷',
         type: 'location',
-        cname:'东方明珠电视塔',
-        location:{lat: 31.239928, lng: 121.50090399999999},
-        address: '1 Century Ave, LuJiaZui, Pudong Xinqu, Shanghai Shi, China'
+        location: {lat: 39.866418, lng: 116.488627},
+    },  
+    {
+        name:'圆明园',
+        type: 'location',
+        location: {lat: 40.0081023, lng: 116.2960261},
     },
     {
-        name: 'Shanghai Tower',
-        capital:'sht',
+        name:'颐和园',
         type: 'location',
-        cname:'上海中心大厦',
-        location:{lat: 31.2335024, lng: 121.50576290000004},
-        address: '501 Yincheng Middle Rd, LuJiaZui, 陆家嘴 Pudong Xinqu, Shanghai Shi, China'
-    }
+        location: {lat: 39.9999864, lng: 116.2732719},
+    },
+    {
+        name:'八达岭长城',
+        type: 'location',
+        location: {lat: 40.3597637, lng: 116.0178317},
+    },
 ];

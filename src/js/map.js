@@ -4,13 +4,13 @@
     // 默认配置信息，地图中心为北京
     var def = {
             dom: document.getElementById('map'),
-            local: 'beijing',
+            local: '北京',
             center: {
                 lat: 39.9087191,
                 lng: 116.3952003
             },
             iconBase : 'https://mingyili.github.io/assets/img/map/',
-            wikiApiUrl : 'https://en.wikipedia.org/w/api.php?format=json&action=query&generator=search&gsrnamespace=0&gsrlimit=10&prop=pageimages|extracts&pilimit=max&exintro&explaintext&exsentences=1&exlimit=max&origin=*&gsrsearch='
+            wikiApiUrl : 'https://zh.wikipedia.org/w/api.php?format=json&action=query&generator=search&gsrnamespace=0&gsrlimit=10&prop=pageimages|extracts&pilimit=max&exintro&explaintext&exsentences=1&exlimit=max&origin=*&gsrsearch='
         };
 
     /**
@@ -32,7 +32,7 @@
         },
         /**
          * getMarkerIcon 获取不同类型的标记图标，获取过的会缓存
-         * @param  {String} type 地图标记类型
+         * @param  {String} type 地图标记类型，可以是餐饮，商场，景点等，现在只有 location
          * @return {Obj} 返回 实例化过的 MarkerImage 对象
          */
         getMarkerIcon: function(type) {
@@ -64,7 +64,7 @@
                 mapSelf = this,
                 marker = new google.maps.Marker({
                     position: loc.location,
-                    title: loc.cname,
+                    title: loc.name,
                     icon: defIcon,
                     map: this.map,
                     animation: google.maps.Animation.DROP
@@ -94,14 +94,14 @@
         initInfowindow: function(loc, info) {
             info = info || {
                 isDef: true,
-                text: loc.cname
+                text: loc.name
             };
             loc.infowindow = new google.maps.InfoWindow({
                 content: ['<div class="info-cont">',
                     (info.img ? '<img src="' + info.img + '" class="info-img"/>' : ''),
                     '<div class="info-text">',
                         (info.isDef ? '<p>维基介绍：</p>' : ''),
-                        info.text + '<a target="_blank" href="https://en.wikipedia.org/wiki/' + loc.name + '">--More</a>',
+                        info.text + '<a target="_blank" href="https://en.wikipedia.org/wiki/' + loc.name + '">--更多</a>',
                     '</div>',
                 '</div>'].join('')
             });
@@ -120,11 +120,15 @@
             var mapSelf = this,
                 isLocal = new RegExp(this.opt.local, "i");
 
+            // 当前地址信息的 ajax 正在请求的时候加锁，避免复请求
+            if (loc.infoLoading) return false;
+            loc.infoLoading = true;
             $.ajax({
                 url: this.opt.wikiApiUrl + loc.name,
                 dataType: 'json',
                 success: function(data) {
-                    if (!data) return mapSelf.initInfowindow(loc);
+                    loc.infoLoading = false;
+                    if (!data || !data.query) return mapSelf.initInfowindow(loc);
                     var infos = [];
                     $.each(data.query.pages, function(key, val) {
                         // 筛选有效的信息
@@ -142,6 +146,7 @@
                     });
                 },
                 error: function(error) {
+                    loc.infoLoading = false;
                     console.log('wiki 数据加载失败');
                     mapSelf.initInfowindow(loc);
                 }
@@ -154,11 +159,6 @@
     script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCzaIkBQ6lg2lNcpzXCe554Eusmdq9ujEE";
     script.onload = function() {
         W.googleMap = new Map({
-            local: 'shanghai',
-            center: {
-                lat: 31.23071096,
-                lng: 121.46484375
-            },
             locations: locationDatas
         });
     };
