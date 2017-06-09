@@ -1,4 +1,4 @@
-;(function($, W) {
+(function($, window) {
     'use strict';
 
     // 默认配置信息，地图中心为北京
@@ -28,7 +28,6 @@
                 center: opt.center,
                 zoom: 13
             });
-            if (opt.locations) this.addMarkers(opt.locations);
         },
         /**
          * getMarkerIcon 获取不同类型的标记图标，获取过的会缓存
@@ -43,15 +42,11 @@
         /**
          * addMarkers 批量实例化一组地图标记；
          * 利用地图标记数据批量生成地址模型数据，
-         * 回调绑定点击事件能在点击标记时响应 locMode 定义的 onActive 方法，这样就可以统一处理地址的 active 事件
          * @param {Array} locs 地址数据
          */
         addMarkers: function(locs) {
             if (!locs || !locs.length) return this;
-            var markers = locs.map(this.newMarker.bind(this));
-            W.searchVM.addLocModes(markers, function(e) {
-                e.marker.addListener('click', e.onActive.bind(e));
-            });
+            return locs.map(this.newMarker.bind(this));
         },
         /**
          * newMarker 实例化一个地图标记
@@ -75,15 +70,17 @@
 
             // 地址标记 active 时添加动画并展示信息窗口
             marker.onActive = function() {
-                // 这的 this 指向 loc，避免事件调用时获取不到正确的 locMode
-                this.marker.setAnimation(google.maps.Animation.BOUNCE);
-                mapSelf.showInfoWinodw(this);
+                this.setAnimation(google.maps.Animation.BOUNCE);
+                mapSelf.showInfoWinodw(loc);
             };
             marker.offActive = function() {
-                this.marker.setAnimation(null);
-                this.infowindow && this.infowindow.close();
+                this.setAnimation(null);
+                loc.infowindow && loc.infowindow.close();
             };
-            loc.marker = marker
+            // 标记点击
+            marker.addListener('click', loc.onActive.bind(loc));
+
+            loc.marker = marker;
             return loc;
         },
         /**
@@ -154,16 +151,11 @@
         }
     };
 
-    // 翻墙老连不上所以加了 script 加载 js，检测加载失败
-    var script = document.createElement('script');
-    script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCzaIkBQ6lg2lNcpzXCe554Eusmdq9ujEE";
-    script.onload = function() {
-        W.googleMap = new Map({
-            locations: locationDatas
-        });
-    };
-    script.onerror = function() {
+    // 检测加载失败
+    window.mapError = function() {
         console.log('Google Map 加载失败');
     };
-    document.body.appendChild(script);
-})($, window);
+    window.initMap = function() {
+        window.afterMapLoad(window.googleMap = new Map());
+    };
+})($, window)

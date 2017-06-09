@@ -3,7 +3,7 @@ var locationDatas = [
         name:'天安门',
         type: 'location',
         location: {lat: 39.909191, lng: 116.3969811},
-    },  
+    },
     {
         name:'故宫博物院',
         type: 'location',
@@ -53,7 +53,7 @@ var locationDatas = [
         name:'北京欢乐谷',
         type: 'location',
         location: {lat: 39.866418, lng: 116.488627},
-    },  
+    },
     {
         name:'圆明园',
         type: 'location',
