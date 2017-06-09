@@ -149,17 +149,12 @@ var locationDatas = [
         }, this).extend({ rateLimit: { timeout: 300, method: "notifyWhenChangesStop" } });
     }
 
-    //获取数据
-    function getLocsData() {
-        $.get()
-    }
-
-    // 实例化并 serachViewModel
-    var searchVM = new serachViewModel(locationDatas);
-    ko.applyBindings(searchVM);
+    // 实例化 serachViewModel，可通过调用 searchVM.addLocModes([]) 添加新的地址数据
+    window.searchVM = new serachViewModel(locationDatas);
+    ko.applyBindings(window.searchVM);
     // 地图加载完成后 根据已有的地址数据实例化标记
     window.afterMapLoad = function(map) {
-        map.addMarkers(searchVM.locations());
+        map.addMarkers(window.searchVM.locations());
     };
 })($, window)
 ;(function($, window) {
