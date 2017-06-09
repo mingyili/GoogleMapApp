@@ -28,6 +28,7 @@
         .list-item { padding: 8px 15px; cursor: pointer; }
         .list-item + .list-item { border-top: 1px solid #eee; }
         .list-item[active=true] { background-color: #4897fa; color: #fff; }
+        .list-none { color: #999; }
 
         #map { height: 100%; }
         .info-cont { max-width: 280px; }
@@ -38,14 +39,17 @@
     <div class="search-cont">
         <div class="search-div">
             <div class="search-bar">
-                <input type="text" class="sidebar-input" data-bind="textInput: keyword" placeholder="快捷检索" />
+                <input type="text" class="sidebar-input" data-bind="textInput: keyword" placeholder="请输入要检索的内容，例如：中国" />
             </div>
             <div class="result-cont">
                 <ul class="result-list" data-bind="foreach: getMatchLoc">
-                    <li class="list-item" data-bind="visible: visible, attr: {active: active}, click: onClick">
+                    <li class="list-item" data-bind="attr: {active: active}, click: onClick">
                         <p data-bind="text: name"></p>
                     </li>
                 </ul>
+                <div class="list-item list-none" data-bind="visible: noMatch">
+                    没存储<span data-bind="visible: keyword">与 <b data-bind="text: keyword"></b> </span>相关的数据
+                </div>
             </div>
         </div>
     </div>

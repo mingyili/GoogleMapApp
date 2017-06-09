@@ -8,8 +8,6 @@
     var locMode = function (data) {
         // 对象浅复制
         Object.assign(this, data || {});
-        // 是否可见
-        this.visible = ko.observable(true);
         // 是否选中
         this.active = ko.observable(false);
         // 设置当前 locMode 为 active，只能存在一个active的模型
@@ -31,12 +29,19 @@
         };
     };
 
+    // 为字符串添加去除所有空格的方法
+    String.prototype.trimAll= function() {
+        return this.replace(/\s+/g, '');
+    };
+
     // 搜索的ViewModel
     var serachViewModel = function() {
         // 检索词 节流 300ms
         this.keyword = ko.observable('').extend({ rateLimit: 300 });
-        // 用于绑定地址信息
+        // 缓存所有的地址信息
         this.locations = ko.observableArray([]);
+        // 是否有匹配的结果
+        this.noMatch = ko.observable(false);
 
         // 批量添加地址模型 业务逻辑上，出现的绝大部分是一组地点，而且批量添加可以避免 getMatchLoc 重复触发
         this.addLocModes = function(data, bindEvent) {
@@ -53,19 +58,22 @@
             // 取消激活的地址模型
             currentLoc && currentLoc.offActive();
 
-            var keyword = $.trim(this.keyword()),
-                locModes = this.locations();
-            this.locations( locModes.map(function(loc) {
-                // 是否匹配关键词，如果关键词为空默认都匹配
-                var isMatch = keyword === '' ? true : loc.name.indexOf(keyword) > -1;
-                loc.visible(isMatch);
+            var keyword = this.keyword().toString().trimAll(),
+                locModes = this.locations(),
+                matchs = [];
+            locModes.map(function(loc) {
+                // 是否匹配关键词，如果关键词为空默认都匹配，都清除空格后再匹配
+                var isMatch = ( 
+                    keyword === '' || 
+                    loc.name.trimAll().indexOf(keyword) > -1
+                );
                 loc.marker.setVisible(isMatch);
-                return loc;
-            }) );
-
-            return this.locations();
+                isMatch && matchs.push(loc);
+            });
+            matchs.length ? this.noMatch(false) : this.noMatch(true);
+            return matchs;
             // notifyWhenChangesStop 去抖用，500ms内不改变才触发
-        }, this).extend({ rateLimit: { timeout: 500, method: "notifyWhenChangesStop" } });
+        }, this).extend({ rateLimit: { timeout: 300, method: "notifyWhenChangesStop" } });
     }
 
     // 实例化并抛出全局变量，方便地图调用
