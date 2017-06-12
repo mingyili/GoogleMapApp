@@ -5,7 +5,7 @@
         }
         p { margin: 0; min-height: 1em; }
         ul { list-style: none; margin: 0; }
-        .search-cont { position: absolute; width: 100%; max-width: 320px; top: 20px; right: 0; z-index: 10; }
+        .search-cont { position: absolute; width: 100%; max-width: 400px; top: 20px; right: 0; z-index: 10; }
         .search-div { margin: 0 15px; }
         .search-bar,
         .result-cont { background-color: #fff; border-radius: 3px; box-shadow: 0 0 5px 2px rgba(0, 0, 0, .2); width: 100%; box-sizing: border-box; overflow-x: auto;}
@@ -23,13 +23,13 @@
         .info-img { float: left; margin-right: 10px; }
 
         .app-statue {
-            position: absolute; z-index: 10; width: 300px; left: 50%; top: 50%;
-            margin: -100px -150px; font-size: 16px; text-align: center;
-            background-color: #fff; padding: 50px; box-sizing: border-box; border-radius: 5px;
+            position: absolute; z-index: 10; width: 280px; left: 50%; top: 50%;
+            margin: -100px -140px; font-size: 16px; text-align: center;
+            background-color: #fff; padding: 50px 20px; box-sizing: border-box; border-radius: 5px;
             box-shadow: 0 0 5px 2px rgba(0, 0, 0, .1);
         }
         @media screen and (max-width: 640px) {
             .result-cont { -webkit-overflow-scrolling : touch; }
             .result-list { display: table;}
             .list-item { display: table-cell; }
-        }</style></head><body><div class="search-cont" data-bind="visible:mapsatue() == 'success'"><div class="search-div"><div class="search-bar"><input type="text" class="sidebar-input" data-bind="textInput: keyword" placeholder="请输入要检索的内容，例如：中国"></div><div class="result-cont"><ul class="result-list" data-bind="visible: !noMatch(), foreach: getMatchLoc"><li class="list-item" data-bind="attr: {active: active}, click: onClick"><p data-bind="text: name"></p></li></ul><div class="list-item list-none" data-bind="visible: noMatch">没存储<span data-bind="visible: keyword">与 <b data-bind="text: keyword"></b> </span>相关的数据</div></div></div></div><div class="app-statue" data-bind="visible:mapsatue() == 'loading'">地图加载中...</div><div class="app-statue" data-bind="visible:mapsatue() == 'error'"><p>网络异常！</p><p>地图加载失败，请稍后重试</p></div><div id="map" class="map-cont"></div><script src="js/zepto.js"></script><script src="js/knockout-3.4.2.js"></script><script src="js/base.min.b9c0b2e6.js"></script><script onerror="mapError();" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCzaIkBQ6lg2lNcpzXCe554Eusmdq9ujEE&callback=initMap"></script></body></html>
+        }</style></head><body><div class="search-cont" data-bind="visible:mapsatue() == 'success'"><div class="search-div"><div class="search-bar"><input type="text" class="sidebar-input" data-bind="textInput: keyword" placeholder="请输入要检索的内容，例如：中国"></div><div class="result-cont"><ul class="result-list" data-bind="visible: !noMatch(), foreach: getMatchLoc"><li class="list-item" data-bind="attr: {active: active}, click: onClick"><p data-bind="text: name"></p></li></ul><div class="list-item list-none" data-bind="visible: noMatch">没存储<span data-bind="visible: keyword">与 <b data-bind="text: keyword"></b> </span>相关的数据</div></div></div></div><div class="app-statue" data-bind="visible:mapsatue() == 'loading'">地图加载中...</div><div class="app-statue" data-bind="visible:mapsatue() == 'error'"><p>网络异常！</p><p>地图加载失败，请稍后重试</p></div><div id="map" class="map-cont"></div><script src="lib/zepto.js"></script><script src="lib/knockout-3.4.2.js"></script><script src="js/base.min.b9c0b2e6.js"></script><script onerror="mapError();" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCzaIkBQ6lg2lNcpzXCe554Eusmdq9ujEE&callback=initMap"></script></body></html>
