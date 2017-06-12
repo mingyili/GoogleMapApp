@@ -54,7 +54,7 @@
                 <input type="text" class="sidebar-input" data-bind="textInput: keyword" placeholder="请输入要检索的内容，例如：中国" />
             </div>
             <div class="result-cont">
-                <ul class="result-list" data-bind="foreach: getMatchLoc, visible: !noMatch">
+                <ul class="result-list" data-bind="visible: !noMatch(), foreach: getMatchLoc">
                     <li class="list-item" data-bind="attr: {active: active}, click: onClick">
                         <p data-bind="text: name"></p>
                     </li>
