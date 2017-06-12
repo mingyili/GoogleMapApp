@@ -107,6 +107,8 @@ var locationDatas = [
 
     // 搜索的ViewModel
     var serachViewModel = function(defLocs) {
+        // 地图是否加载
+        this.mapsatue = ko.observable('loading');
         // 检索词 节流 300ms
         this.keyword = ko.observable('').extend({ rateLimit: 300 });
         // 缓存所有的地址信息
@@ -150,13 +152,9 @@ var locationDatas = [
     }
 
     // 实例化 serachViewModel，可通过调用 searchVM.addLocModes([]) 添加新的地址数据
-    window.searchVM = new serachViewModel(locationDatas);
+    window.searchVM = new serachViewModel();
     ko.applyBindings(window.searchVM);
-    // 地图加载完成后 根据已有的地址数据实例化标记
-    window.afterMapLoad = function(map) {
-        map.addMarkers(window.searchVM.locations());
-    };
-})($, window)
+ })($, window);
 ;(function($, window) {
     'use strict';
 
@@ -312,9 +310,11 @@ var locationDatas = [
 
     // 检测加载失败
     window.mapError = function() {
-        console.log('Google Map 加载失败');
+        window.searchVM.mapsatue('error');
     };
     window.initMap = function() {
-        window.afterMapLoad(window.googleMap = new Map());
+        window.googleMap = new Map();
+        window.searchVM.mapsatue('success');
+        window.searchVM.addLocModes(locationDatas);
     };
 })($, window)

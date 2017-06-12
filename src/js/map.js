@@ -153,9 +153,11 @@
 
     // 检测加载失败
     window.mapError = function() {
-        console.log('Google Map 加载失败');
+        window.searchVM.mapsatue('error');
     };
     window.initMap = function() {
-        window.afterMapLoad(window.googleMap = new Map());
+        window.googleMap = new Map();
+        window.searchVM.mapsatue('success');
+        window.searchVM.addLocModes(locationDatas);
     };
 })($, window)
